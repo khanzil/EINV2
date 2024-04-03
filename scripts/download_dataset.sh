@@ -30,9 +30,9 @@ wget -P $Download_packages_dir 'https://zenodo.org/record/3870859/files/README.m
 zip -s 0 $Download_packages_dir'/foa_dev.zip' --out $Download_packages_dir'/foa_dev_single.zip'
 zip -s 0 $Download_packages_dir'/mic_dev.zip' --out $Download_packages_dir'/mic_dev_single.zip'
 
-# unzip $Download_packages_dir'/foa_dev_single.zip' -d $Dataset_root
-# unzip $Download_packages_dir'/mic_dev_single.zip' -d $Dataset_root
-# unzip $Download_packages_dir'/metadata_dev.zip' -d $Dataset_root
-# unzip $Download_packages_dir'/metadata_eval.zip' -d $Dataset_root
-# unzip $Download_packages_dir'/foa_eval.zip' -d $Dataset_root
-# unzip $Download_packages_dir'/mic_eval.zip' -d $Dataset_root
+unzip $Download_packages_dir'/foa_dev_single.zip' -d $Dataset_root
+unzip $Download_packages_dir'/mic_dev_single.zip' -d $Dataset_root
+unzip $Download_packages_dir'/metadata_dev.zip' -d $Dataset_root
+unzip $Download_packages_dir'/metadata_eval.zip' -d $Dataset_root
+unzip $Download_packages_dir'/foa_eval.zip' -d $Dataset_root
+unzip $Download_packages_dir'/mic_eval.zip' -d $Dataset_root
