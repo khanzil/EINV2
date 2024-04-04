@@ -1,5 +1,5 @@
 #!/bin/bash
-source activate base
+
 set -e
 
 # check bin requirement
