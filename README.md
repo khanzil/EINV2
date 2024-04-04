@@ -21,7 +21,4 @@ In seld/methods/ein_seld/utils, change stft.py line 164 to
 ```
    fft_window = librosa.util.pad_center(fft_window, size=n_fft)
 ```
-line 86, 87, 134 change 
-```
-n to self.n
-```
+line 86, 87, 134 change ```n``` to ```self.n```
