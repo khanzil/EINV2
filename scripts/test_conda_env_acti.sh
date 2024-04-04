@@ -1,2 +1,2 @@
 source activate base
-conda list
+conda env list
