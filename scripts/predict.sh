@@ -1,5 +1,5 @@
 #!/bin/bash
-
+source activate ein
 set -e
 
 CONFIG_FILE='./configs/ein_seld/seld.yaml'
