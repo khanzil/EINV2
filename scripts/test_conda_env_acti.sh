@@ -1,2 +1,2 @@
-source activate ein
+source activate base
 conda list
