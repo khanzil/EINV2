@@ -1,4 +1,4 @@
-My implementation of EINV2 with modification to run on Kaggle Notebook. Original Source code coude be found at https://github.com/yinkalario/EIN-SELD
+My implementation of EINV2 with modification to run on Kaggle Notebook. Original Source code could be found at https://github.com/yinkalario/EIN-SELD
 
 # Modification:
 Adding
