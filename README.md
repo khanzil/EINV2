@@ -5,7 +5,7 @@ Adding in .sh scripts
 ```
    source activate ein
 ```
-In seld/methods/ein_seld, change preprocess.py line 148 and training.py line 109 to (this problem could be found in Source code -> Issue)
+Change seld/learning/preprocess.py line 148 and seld/methods/training.py line 109 to (this problem could be found in Source code -> Issue)
 ```
    batch_x = batch_sample.batch_out_dict['waveform']
 ```
