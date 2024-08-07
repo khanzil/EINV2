@@ -1,8 +1,8 @@
 data augmentation:
   SpecAug:
-    time mask num: 2
+    time mask num: 1
     time mask max len: 35
-    freq mask num: 2
+    freq mask num: 1
     freq mask max len: 30
   RC:
     time mask step: 50
@@ -13,20 +13,20 @@ data augmentation:
   ACS:
     p: 0.5
   p: 0.7
-  
+
 features:
-  audio_format: 'foa' #'eval'
   sample rate: 24000
   window: 'hann'
   n_fft: 1024
   hop_len: 600 
   n_mels: 256
-  type: 'LogMel&IVs' # 'LogMel&GCCPHAT', 'LogLin&GCCPHAT', 'LogMel&IVs', 'LogLin&IVs', 'SALSA FOA', 'SALSA MIC'
+  type: 'LogMel_IVs' # 'LogMel_GCCPHAT', 'LogLin_GCCPHAT', 'LogMel_IVs', 'LogLin_IVs', 'SALSA_FOA', 'SALSA_MIC'
   SALSA window size: 3
+  SALSA threshold: 5
   SS TF bin filter: False
-  compress_high_frequency: True
 
 dataset:
+  name: 'TNSSE2020'
   labels: 
     - 'alarm'
     - 'crying baby'
@@ -47,8 +47,7 @@ dataset:
   fold_str_index: 4 
   ov_str_index: -1 
 
-data_dir: './dataset'
-feature_dir: 
-
+data rootdir: './dataset_root' 
+audio format: 'foa' #'eval'
 
 test: acs,specaug

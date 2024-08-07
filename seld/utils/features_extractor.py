@@ -17,7 +17,7 @@ class afextractor():
         self.hop_len = features_cfg['hop_len']
         self.n_mels = features_cfg['n_mels']
         self.n_overlap = self.n_fft - self.hop_len
-        self.feature_type = features_cfg['feature type']
+        self.feature_type = features_cfg['type']
         self.SSTF_bin_filter = features_cfg['SS TF bin filter']
         self.SALSA_win_size = features_cfg['SALSA window size']
         self.SALSA_threshold = features_cfg['SALSA threshold']
@@ -32,59 +32,56 @@ class afextractor():
         stft = np.stack((stft_W, stft_Y, stft_Z, stft_X), axis=0) # channel x freq x frame        
         spec = np.abs(stft) ** 2
 
-        if self.feature_type == 'LogMel&IVs': # Tested
+        if self.feature_type == 'LogMel_IVs': # Tested
             # Calculate LogMel Spectrogram
             melW = librosa.filters.mel(sr = 24000, n_fft=self.n_fft, n_mels=self.n_mels, fmin=20, fmax=12000)
             features = np.zeros((spec.shape[0], self.n_mels, spec.shape[2]))
             for channel in range (spec.shape[0]):
                 features[channel,:,:] = np.matmul(melW, spec[channel,:,:])
                 features[channel,:,:] = librosa.power_to_db(features[channel,:,:], ref=np.max)
-            melspec = np.zeros((4,self.n_mels,stft.shape[2]), dtype=complex)
+            melstft = np.zeros((stft.shape[0],self.n_mels,stft.shape[2]), dtype=complex)
             for chan in range(stft.shape[0]):
-                melspec[chan,...] = np.dot(melW, stft[chan,...])
-            melspec = np.abs(melspec)**2
+                melstft[chan,...] = np.dot(melW, stft[chan,...])
             # Calculate Logmel IVs
             IVs = np.zeros((3, features.shape[1], features.shape[2]))
 
-            # y = np.real(np.multiply(spec[0,:,:].conjugate(),spec[1,:,:]))
-            # z = np.real(np.multiply(spec[0,:,:].conjugate(),spec[2,:,:]))
-            # x = np.real(np.multiply(spec[0,:,:].conjugate(),spec[3,:,:]))
+            # y = np.real(np.multiply(stft[0,:,:].conjugate(),stft[1,:,:]))
+            # z = np.real(np.multiply(stft[0,:,:].conjugate(),stft[2,:,:]))
+            # x = np.real(np.multiply(stft[0,:,:].conjugate(),stft[3,:,:]))
 
             # for frame in range (features.shape[2]):
             #     norm = np.sqrt(x[:,frame]**2 + y[:,frame]**2 + z[:,frame]**2) + eps
             #     IVs[0,:, frame] = np.dot(melW, y[:,frame]/norm)
             #     IVs[1,:, frame] = np.dot(melW, z[:,frame]/norm)
             #     IVs[2,:, frame] = np.dot(melW, x[:,frame]/norm)
-                        
-            y = np.real(np.multiply(melspec[0,:,:].conjugate(),melspec[1,:,:]))
-            z = np.real(np.multiply(melspec[0,:,:].conjugate(),melspec[2,:,:]))
-            x = np.real(np.multiply(melspec[0,:,:].conjugate(),melspec[3,:,:]))
 
-            norm = np.sqrt(x**2 + y**2 + z**2) + eps
+            y = np.real(np.multiply(melstft[0,:,:].conjugate(),melstft[1,:,:]))
+            z = np.real(np.multiply(melstft[0,:,:].conjugate(),melstft[2,:,:]))
+            x = np.real(np.multiply(melstft[0,:,:].conjugate(),melstft[3,:,:]))
+
+            norm = np.sqrt(x**2 + y**2 + z**2)
             IVs[0,:,:] = y/norm
             IVs[1,:,:] = z/norm
             IVs[2,:,:] = x/norm
 
             features = np.concatenate((features, IVs), axis=0)
 
-        elif self.feature_type == "LogLin&IVs": # Tested
+        elif self.feature_type == "LogLin_IVs": # Tested
             features = librosa.power_to_db(spec)
 
             IVs = np.zeros((3, features.shape[1], features.shape[2]))
-            y = np.real(np.multiply(spec[0,:,:].conjugate(),spec[1,:,:]))
-            z = np.real(np.multiply(spec[0,:,:].conjugate(),spec[2,:,:]))
-            x = np.real(np.multiply(spec[0,:,:].conjugate(),spec[3,:,:]))
+            y = np.real(np.multiply(stft[0,:,:].conjugate(),stft[1,:,:]))
+            z = np.real(np.multiply(stft[0,:,:].conjugate(),stft[2,:,:]))
+            x = np.real(np.multiply(stft[0,:,:].conjugate(),stft[3,:,:]))
 
-            for frame in range (features.shape[2]):
-                norm = np.sqrt(x[:,frame]**2 + y[:,frame]**2 + z[:,frame]**2) + eps
+            norm = np.sqrt(x**2 + y**2 + z**2)
+            IVs[0,:,:] = y/norm
+            IVs[1,:,:] = z/norm
+            IVs[2,:,:] = x/norm
             
-                IVs[0,:, frame] = y[:,frame]/norm
-                IVs[1,:, frame] = z[:,frame]/norm
-                IVs[2,:, frame] = x[:,frame]/norm
-
             features = np.concatenate((features, IVs), axis=0)
 
-        elif self.feature_type == 'SALSA FOA': # Tested
+        elif self.feature_type == 'SALSA_FOA': # Tested
             features = np.zeros(spec.shape)
             for channel in range (spec.shape[0]):
                 features[channel,:,:] = librosa.power_to_db(spec[channel,:,:], ref=np.max)
@@ -109,7 +106,7 @@ class afextractor():
             
             features = np.concatenate((features, eigen_inten_vec), axis=0)
 
-        elif self.feature_type == 'SALSA MIC': 
+        elif self.feature_type == 'SALSA_MIC': 
             features = np.zeros(spec.shape)
             for channel in range (spec.shape[0]):
                 features[channel,:,:] = librosa.power_to_db(spec[channel,:,:], ref=np.max)
@@ -132,10 +129,67 @@ class afextractor():
                     normalized_eigen_vec = np.angle(u[1:,0] * u[0,0].conjugate())
                     normalized_eigen_vec = normalized_eigen_vec/(2*np.pi*freq*self.sr/(self.n_fft*343)+eps)
                     eigen_inten_vec[:,freq,time-win_size] = normalized_eigen_vec
+
+        elif self.feature_type == 'Mel_SALSA_FOA': # Tested
+            features = np.zeros(spec.shape)
+            for channel in range (spec.shape[0]):
+                features[channel,:,:] = librosa.power_to_db(spec[channel,:,:], ref=np.max)
+            
+            for chan in range(stft.shape[0]):
+                melstft[chan,...] = np.dot(melW, stft[chan,...])
+            stft = melstft
+            
+            win_size = self.SALSA_win_size
+            eigen_inten_vec = np.zeros((stft.shape[0]-1, stft.shape[1], stft.shape[2]))
+            stft = np.pad(stft, ((0,0), (0,0), (win_size, win_size)), mode = 'wrap')
+
+            for frame in range (win_size, stft.shape[2]-win_size):
+                for freq in range (stft.shape[1]):
+                    x = stft[:, freq, frame-win_size:frame+win_size+1]
+                    CovMat = np.dot(x, x.conjugate().transpose()) / (1+2*win_size)
+                    u,s,_ = np.linalg.svd(CovMat)
+
+                    if self.SSTF_bin_filter is True:
+                        if s[0] < s[1] * self.SALSA_threshold:
+                            continue
+
+                    normalized_eigen_vec = np.real(u[1:,0]/u[0,0])
+                    normalized_eigen_vec = normalized_eigen_vec/(np.linalg.norm(normalized_eigen_vec)+eps)
+                    eigen_inten_vec[:,freq,frame-win_size] = normalized_eigen_vec
             
             features = np.concatenate((features, eigen_inten_vec), axis=0)
 
-        elif self.feature_type == "LogMel&GCCPHAT": # Tested
+        elif self.feature_type == 'Mel_SALSA_MIC': 
+            features = np.zeros(spec.shape)
+            for channel in range (spec.shape[0]):
+                features[channel,:,:] = librosa.power_to_db(spec[channel,:,:], ref=np.max)
+                      
+            # stft[:,int(4000*self.n_fft/self.sr):,:] = 0
+            for chan in range(stft.shape[0]):
+                melstft[chan,...] = np.dot(melW, stft[chan,...])
+            stft = melstft
+
+            win_size = self.SALSA_win_size
+            eigen_inten_vec = np.zeros((stft.shape[0]-1, stft.shape[1], stft.shape[2]))
+            stft = np.pad(stft, ((0,0), (0,0), (win_size, win_size)), mode = 'wrap')
+
+            for time in range (win_size, stft.shape[2]-win_size):
+                for freq in range (stft.shape[1]):
+                    x = stft[:, freq, time-win_size:time+win_size+1]
+                    CovMat = np.dot(x, x.conjugate().transpose()) / (1+2*win_size)
+                    u,s,_ = np.linalg.svd(CovMat)
+                    
+                    if self.SSTF_bin_filter is True:
+                        if s[0] < s[1] * self.SALSA_threshold:
+                            continue
+
+                    normalized_eigen_vec = np.angle(u[1:,0] * u[0,0].conjugate())
+                    normalized_eigen_vec = normalized_eigen_vec/(2*np.pi*freq*self.sr/(self.n_fft*343)+eps)
+                    eigen_inten_vec[:,freq,time-win_size] = normalized_eigen_vec
+            
+            features = np.concatenate((features, eigen_inten_vec), axis=0)
+
+        elif self.feature_type == "LogMel_GCCPHAT": # Tested
             melW = librosa.filters.mel(sr = 24000, n_fft=self.n_fft, n_mels=self.n_mels, fmin=20, fmax=12000)
             features = np.zeros((spec.shape[0], self.n_mels, spec.shape[2]))
             dis = 0.068
@@ -143,10 +197,10 @@ class afextractor():
                 features[channel,:,:] = np.matmul(melW, spec[channel,:,:])
                 features[channel,:,:] = librosa.power_to_db(features[channel,:,:], ref=np.max)
 
-            melspec = np.zeros((4,self.n_mels,spec.shape[2]))
+            melstft = np.zeros((stft.shape[0],self.n_mels,spec.shape[2]))
             for chan in range(spec.shape[0]):
-                melspec[chan,...] = np.dot(melW, spec[chan,...])
-            spec = melspec
+                melstft[chan,...] = np.dot(melW, spec[chan,...])
+            spec = melstft
 
             gcc_phat = np.zeros((int((stft.shape[0]-1)*stft.shape[0]/2), self.n_mels, stft.shape[2])) 
 
@@ -174,7 +228,7 @@ class afextractor():
 
             features = np.concatenate((features, gcc_phat), axis=0)
 
-        elif self.feature_type == "LogLin&GCCPHAT": # Tested
+        elif self.feature_type == "LogLin_GCCPHAT": # Tested
             features = librosa.power_to_db(spec)
             dis = 0.068
             gcc_phat = np.zeros((int((stft.shape[0]-1)*stft.shape[0]/2), stft.shape[1], stft.shape[2])) 

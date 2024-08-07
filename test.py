@@ -36,16 +36,6 @@ with open('./config.yaml', 'r') as f:
 # SIMULATIONs
 
 
-# def lrss_cal(stft, threshold = 10):
-#     start = time.time()
-#     mask = np.zeros(stft.shape[1:])
-#     real = np.real(stft)
-#     imag = np.imag(stft)
-#     phase_dif = np.abs(np.sum(np.multiply(real,imag), axis=0)/(np.linalg.norm(real, axis=0)*np.linalg.norm(imag, axis=0)+eps))
-#     mask[phase_dif > np.cos(threshold*np.pi/180)] = 1
-#     print(time.time()-start)
-#     return mask, phase_dif
-
 # def coh_test(stft, threshold = 5):
 #     drr = np.zeros(stft.shape[1:])
 #     mask = np.zeros(stft.shape[1:])
@@ -136,7 +126,7 @@ with open('./config.yaml', 'r') as f:
 #     x = np.convolve(x,rir_x[:,0],mode='valid')
 #     return np.concatenate([w,y,z,x]).reshape(4,len(w))
 
-# if 1:
+# if 0:
 #     wavdata, sr = sf.read('dataset/LibriTTS/dev-clean/251/118436/251_118436_000021_000003.wav', dtype=np.int16)
 #     wavdata1 = wavdata[sr*0:sr*2]
 
@@ -213,10 +203,3 @@ with open('./config.yaml', 'r') as f:
 #     hf.create_dataset('DA', data=fea_mat2, dtype=float)
 #     hf.create_dataset('SALSA mask', data=mask_drr1, dtype=float)
 #     hf.create_dataset('DA mask', data=mask_drr2, dtype=float)
-
-
-
-
-
-
-

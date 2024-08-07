@@ -3,7 +3,6 @@ eps = np.finfo(float).eps
 import pandas as pd
 import os
 import matplotlib.pyplot as plt
-import scipy.signal as ss
 
 classes = {0:'alarm',
            1:'crying baby',

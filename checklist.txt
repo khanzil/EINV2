@@ -1,13 +1,18 @@
 
 Preprocess:
     - Feature extractor
-        LogMel          X
-        LinMel          X
-        IVs             X
-        GCC-PHAT        X
-        SALSA IPD       X
-        SALSA IID       X
-    - preprocess.py     X
+        LogMel          V
+        LinMel          V
+        IVs             V
+        GCC-PHAT        V
+        SALSA MIC       V
+        SALSA FOA       V
+        MEL SALSA MIC   V
+        MEL SALSA FOA   V
+    - preprocess.py     
+        feature extract X
+        label extract   X
+        mean, std cal   X
 
 Data Loading:
     - Data Augmentation
