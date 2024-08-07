@@ -1,0 +1,54 @@
+data augmentation:
+  SpecAug:
+    time mask num: 2
+    time mask max len: 35
+    freq mask num: 2
+    freq mask max len: 30
+  RC:
+    time mask step: 50
+    time mask max len: 50
+    freq mask max len: 50    
+  FS:
+    freq band shift range: 10
+  ACS:
+    p: 0.5
+  p: 0.7
+  
+features:
+  audio_format: 'foa' #'eval'
+  sample rate: 24000
+  window: 'hann'
+  n_fft: 1024
+  hop_len: 600 
+  n_mels: 256
+  type: 'LogMel&IVs' # 'LogMel&GCCPHAT', 'LogLin&GCCPHAT', 'LogMel&IVs', 'LogLin&IVs', 'SALSA FOA', 'SALSA MIC'
+  SALSA window size: 3
+  SS TF bin filter: False
+  compress_high_frequency: True
+
+dataset:
+  labels: 
+    - 'alarm'
+    - 'crying baby'
+    - 'crash'
+    - 'barking dog'
+    - 'running engine'
+    - 'female scream'
+    - 'female speech'
+    - 'burning fire'
+    - 'footsteps'
+    - 'knocking on door'
+    - 'male scream'
+    - 'male speech'
+    - 'ringing phone'
+    - 'piano'
+  clip_length: 60 
+  label_resolution: 0.1 
+  fold_str_index: 4 
+  ov_str_index: -1 
+
+data_dir: './dataset'
+feature_dir: 
+
+
+test: acs,specaug

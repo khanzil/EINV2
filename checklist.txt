@@ -1,0 +1,64 @@
+
+Preprocess:
+    - Feature extractor
+        LogMel          X
+        LinMel          X
+        IVs             X
+        GCC-PHAT        X
+        SALSA IPD       X
+        SALSA IID       X
+    - preprocess.py     X
+
+Data Loading:
+    - Data Augmentation
+        ACS             X
+        SpecAug         X
+        RC              X
+        FS              X
+    - Dataset Module
+
+
+    - Data Loader
+        Segmented       X
+        Shuffle         X
+
+Train:
+    - Blocks            
+        DoubleConv      X
+        DyConv          X
+    - Model
+        EINV2           X
+        EINV2_DyConv    X
+    - Checkpoint        X
+    - Loss              X
+    - Metrics           X
+    - train.py          X
+
+Predict:
+    - Load Checkpoint   X
+
+Eval:
+    - get score         X
+    - toDCASEformat     X
+
+.sh scripts:
+    - parser
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
