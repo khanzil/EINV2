@@ -10,18 +10,18 @@ Preprocess:
         MEL SALSA MIC   V
         MEL SALSA FOA   V
     - preprocess.py     
-        feature extract X
-        label extract   X
-        mean, std cal   X
+        feature extract V
+        label extract   V
+        mean, std cal   V
 
 Data Loading:
     - Data Augmentation
-        ACS             X
-        SpecAug         X
-        RC              X
-        FS              X
+        ACS             V
+        SpecAug         V
+        RC              V
+        FS              V
     - Dataset Module
-
+    
 
     - Data Loader
         Segmented       X

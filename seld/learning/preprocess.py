@@ -20,7 +20,7 @@ class Preprocessor():
             features_foldname += "_SALSAwinsize{}".format(cfg['features']['SALSA win size']) 
 
         features_dir = os.path.join(self.data_rootdir, self.dataset, '_h5', features_foldname)
-        assert os.path.isdir(features_dir) == False, f'{features_dir} is already exists'   
+        assert os.path.isdir(features_dir) == False, f'{features_dir} is already exists'
 
         total = []
 
@@ -54,21 +54,39 @@ class Preprocessor():
         if self.dataset != 'TNSSE2020':
             return
 
+        num_frames = 600
+        num_classes = 14
+        num_tracks = 2
+        deg2rad = np.pi/180
+
         metadata_sets = ['metadata_dev', 'metadata_eval']
         for metadata_set in metadata_sets:
             metadata_dir = os.path.join(self.data_dir, metadata_set)
-            metadata_h5_dir = os.path.join(self.data_rootdir, '_h5', metadata_set)
+            metadata_h5_dir = os.path.join(self.data_rootdir, self.dataset, '_h5', metadata_set)
             os.makedirs(metadata_h5_dir, exist_ok=True)
 
             meta_fns = [fn for fn in os.listdir(metadata_dir) if fn[0] != '.']
             for meta_fn in meta_fns:
                 df = pd.read_csv(os.path.join(metadata_dir, meta_fn), header=None)
+                sed_label = np.zeros((num_frames, num_tracks, num_classes))
+                doa_label = np.zeros((num_frames, num_tracks, 3))
+                for row in df.iterrows():
+                    frame = row[1][0]
+                    event = row[1][1]
+                    track = row[1][2]
+                    azi = row[1][3]
+                    ele = row[1][4]
+                    
+                    sed_label[frame, track, event] = 1
+                    doa_label[frame, track, :] = np.cos(azi*deg2rad) * np.cos(ele*deg2rad),\
+                                        np.sin(azi*deg2rad) * np.cos(ele*deg2rad), np.sin(ele)
 
+                with h5py.File(os.path.join(metadata_h5_dir, meta_fn.replace('csv', 'h5')), 'a') as hf:
+                    hf.create_dataset(name='sed_label', data=sed_label, dtype=np.float32) 
+                    hf.create_dataset(name='doa_label', data=doa_label, dtype=np.float32) 
+            
 
-                with h5py.File(os.path.join(metadata_dir, meta_fn.replace('csv', 'h5')), 'a') as hf:
-                    hf.create_dataset(name='mean', data=mean, dtype=np.float32) 
-
-
+            
 
 
 
