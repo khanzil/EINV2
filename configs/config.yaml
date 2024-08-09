@@ -1,29 +1,5 @@
-data augmentation:
-  SpecAug:
-    time mask num: 1
-    time mask max len: 35
-    freq mask num: 1
-    freq mask max len: 30
-  RC:
-    time mask step: 50
-    time mask max len: 50
-    freq mask max len: 50    
-  FS:
-    freq band shift range: 10
-  ACS:
-    p: 0.5
-  p: 0.7
-
-features:
-  sample rate: 24000
-  window: 'hann'
-  n_fft: 1024
-  hop_len: 600 
-  n_mels: 256
-  type: 'LogMel_IVs' # 'LogMel_GCCPHAT', 'LogLin_GCCPHAT', 'LogMel_IVs', 'LogLin_IVs', 'SALSA_FOA', 'SALSA_MIC'
-  SALSA window size: 3
-  SALSA threshold: 5
-  SS TF bin filter: False
+data rootdir: './dataset_root' 
+audio format: 'foa' #'mic'
 
 dataset:
   name: 'TNSSE2020'
@@ -42,12 +18,66 @@ dataset:
     - 'male speech'
     - 'ringing phone'
     - 'piano'
-  clip_length: 60 
-  label_resolution: 0.1 
-  fold_str_index: 4 
-  ov_str_index: -1 
+  clip length: 60 
+  label resolution: 0.1 
 
-data rootdir: './dataset_root' 
-audio format: 'foa' #'eval'
+features:
+  sample rate: 24000
+  window: 'hann'
+  n_fft: 1024
+  hop_len: 600 
+  n_mels: 256
+  type: 'LogMel_IVs' # 'LogMel_GCCPHAT', 'LogLin_GCCPHAT', 'LogMel_IVs', 'LogLin_IVs', 'SALSA_FOA', 'SALSA_MIC'
+  SALSA window size: 3
+  SALSA threshold: 5
+  SS TF bin filter: False
+  train_chunklen_sec: 4
+  train_hoplen_sec: 4
+  test_chunklen_sec: 4
+  test_hoplen_sec: 4
+  augmentations: None
 
-test: acs,specaug
+data augmentation:
+  SpecAug:
+    time mask num: 1
+    time mask max len: 35
+    freq mask num: 1
+    freq mask max len: 30
+  RC:
+    time mask step: 50
+    time mask max len: 50
+    freq mask max len: 50    
+  FS:
+    freq band shift range: 10
+  ACS:
+    p: 0.5
+  p: 0.7
+
+train:
+  train_id: EINV2_tPIT_n1
+  model: EINV2
+  resume_model: # None_epoch_latest.pth
+  loss_type: all
+  loss_beta: 0.5
+  batch_size: 32
+  train_fold: 2,3,4,5,6
+  valid_fold: 1
+  overlap: 1,2
+  optimizer: adamw
+  lr: 0.0005
+  lr_step_size: 80
+  lr_gamma: 0.1
+  max_epoch: 90
+  threshold_sed: 0.5
+  remark: None
+
+inference:
+  infer_id: EINV2_tPIT_n1
+  testset_type: eval # dev | eval
+  test_fold: None
+  overlap: 1&2
+  train_ids: EINV2_tPIT_n1
+  models: EINV2
+  batch_size: 64
+  threshold_sed: 0.5
+  remark: None

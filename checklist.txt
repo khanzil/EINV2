@@ -20,12 +20,7 @@ Data Loading:
         SpecAug         V
         RC              V
         FS              V
-    - Dataset Module
-    
-
-    - Data Loader
-        Segmented       X
-        Shuffle         X
+    - Dataset Module    V
 
 Train:
     - Blocks            

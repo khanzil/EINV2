@@ -1,7 +1,7 @@
 import numpy as np
 import wave
 import librosa
-from seld.utils.DataAug import *
+from seld.utils.data.DataAug import *
 import torch
 from ruamel.yaml import YAML
 import matplotlib.pyplot as plt

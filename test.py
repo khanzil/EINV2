@@ -5,7 +5,7 @@ import torch.nn as nn
 import scipy.signal as ss
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader 
-from seld.utils.features_extractor import *
+from seld.utils.data.features_extractor import *
 from ruamel.yaml import YAML
 import time
 import soundfile as sf

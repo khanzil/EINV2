@@ -4,7 +4,7 @@ import h5py
 import librosa
 import numpy as np
 import pandas as pd
-from seld.utils.features_extractor import afextractor
+from seld.utils.data.features_extractor import afextractor
 
 class Preprocessor():
     def __init__(self, cfg):
@@ -19,8 +19,8 @@ class Preprocessor():
         if "SALSA" in cfg['features']['type']:
             features_foldname += "_SALSAwinsize{}".format(cfg['features']['SALSA win size']) 
 
-        features_dir = os.path.join(self.data_rootdir, self.dataset, '_h5', features_foldname)
-        assert os.path.isdir(features_dir) == False, f'{features_dir} is already exists'
+        features_h5_dir = os.path.join(self.data_rootdir, self.dataset, '_h5', features_foldname)
+        assert os.path.isdir(features_h5_dir) == False, f'{features_h5_dir} is already exists'
 
         total = []
 
@@ -31,7 +31,7 @@ class Preprocessor():
         extractor = afextractor(cfg)
 
         for audio_set in audio_sets:
-            os.makedirs(os.path.join(features_dir, audio_set))
+            os.makedirs(os.path.join(features_h5_dir, audio_set))
             wav_fns = [fn for fn in os.listdir(os.path.join(self.data_dir, audio_set)) if ".wav" in fn]
 
             for wav_fn in wav_fns:
@@ -39,14 +39,14 @@ class Preprocessor():
                 features = extractor.extract_features(waveform)
                 total.append(features)
                 h5_fn = wav_fn.replace('wav', 'h5')
-                with h5py.File(os.path.join(features_dir, audio_set, h5_fn), 'w') as hf:
+                with h5py.File(os.path.join(features_h5_dir, audio_set, h5_fn), 'w') as hf:
                     hf.create_dataset(name='features', data=features, dtype=np.float32)
 
         total = np.stack(total, axis=0)
-        mean = np.mean(total, axis=(0,4), keepdims=True)
-        std = np.std(total, axis=(0,4), keepdims=True)
+        mean = np.squeeze(np.mean(total, axis=(0,4), keepdims=True), axis=0)
+        std = np.squeeze(np.std(total, axis=(0,4), keepdims=True), axis=0)
 
-        with h5py.File(os.path.join(features_dir, 'scalar.h5'), 'w') as hf:
+        with h5py.File(os.path.join(features_h5_dir, 'scalar.h5'), 'w') as hf:
             hf.create_dataset(name='mean', data=mean, dtype=np.float32)        
             hf.create_dataset(name='std', data=std, dtype=np.float32)        
 
