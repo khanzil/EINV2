@@ -24,10 +24,10 @@ Data Loading:
 
 Train:
     - Blocks            
-        DoubleConv      X
+        DoubleConv      V
         DyConv          X
     - Model
-        EINV2           X
+        EINV2           V
         EINV2_DyConv    X
     - Checkpoint        X
     - Loss              X
