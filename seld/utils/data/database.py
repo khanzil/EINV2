@@ -1,6 +1,6 @@
 import os
 import torch
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, Sampler
 import h5py
 import numpy as np
 
@@ -24,15 +24,15 @@ class UserDataset(Dataset):
         self.data_rootdir = cfg['data rootdir']
         self.dataset = cfg['dataset']['name']
         self.labels = cfg['dataset']['labels']
-        self.clip_len = cfg['dataset']['clip len']
-        self.label_res = cfg['dataset']['label resolution']
-        self.sample_rate = cfg['features']['sample rate']
+        self.clip_len = cfg['dataset']['clip_len']
+        self.label_res = cfg['dataset']['label_resolution']
+        self.sample_rate = cfg['features']['sample_rate']
 
         metadata_h5_dir = os.path.join(self.data_rootdir, self.dataset, 'metadata')
         features_foldname = "{}_sr{}_nfft{}_hoplen{}_nmels{}".format(cfg['features']['type'], 
-                                cfg['features']['sample rate'], cfg['features']['n_fft'], cfg['features']['hop_len'], cfg['features']['n_mels'])
+                                cfg['features']['sample_rate'], cfg['features']['n_fft'], cfg['features']['hop_len'], cfg['features']['n_mels'])
         if "SALSA" in cfg['features']['type']:
-            features_foldname += "_SALSAwinsize{}".format(cfg['features']['SALSA win size']) 
+            features_foldname += "_SALSAwinsize{}".format(cfg['features']['SALSA_win_size']) 
         features_h5_dir = os.path.join(self.data_rootdir, self.dataset, '_h5', features_foldname)
 
         match dataset_type:
@@ -105,7 +105,7 @@ class UserDataset(Dataset):
                         'filename': fn,
                         'n_segment': n_segment,
                         'feature': torch.from_numpy(features),
-                        'sed_labe': torch.from_numpy(sed_label),
+                        'sed_label': torch.from_numpy(sed_label),
                         'doa_label': torch.from_numpy(doa_label)
                     })
                 else:
@@ -121,6 +121,109 @@ class UserDataset(Dataset):
     def __getitem__(self, idx):
         return self.dataset_list[idx]
     
+
+class UserBatchSample(Sampler):
+    def __init__(self, epoch_size, batch_size, seed):
+        super().__init__()        
+        self.epoch_size = epoch_size
+        self.batch_size = batch_size
+        self.random_state = np.random.RandomState(seed=seed)
+
+        self.indexes = np.arange(self.epoch_size)
+        self.random_state.shuffle(self.indexes)
+        self.pointer = 0
+
+    def set_state(self, sampler_state):
+        self.indexes = sampler_state['indexes']
+        self.pointer = sampler_state['pointer']
+        self.random_state.set_state(sampler_state['random_state'])
+
+    def get_state(self):
+        sampler_state = {
+            'indexes': self.indexes,
+            'pointer': self.pointer,
+            'random_state': self.random_state
+        }
+        return sampler_state
+    
+    def __iter__(self):
+        while True:
+            if self.pointer > self.epoch_size:
+                self.pointer = 0
+                self.random_state.shuffle(self.indexes)
+            
+            batch_indexes = self.indexes[self.pointer:self.pointer+self.batch_size]
+            self.pointer += self.batch_size
+            yield batch_indexes
+
+    def __len__(self):
+        return (self.epoch_size + self.batch_size - 1) // self.batch_size
+
+class PinMemCustomBatch():
+    def __init__(self, batch_dict):
+        fn_list = []
+        n_segment_list = []
+        feature_list = []
+        sed_label_list = []
+        doa_label_list = []
+
+        for sample in batch_dict:
+            fn_list.append(sample['filename'])
+            n_segment_list.append(sample['n_segment'])
+            feature_list.append(sample['feature'])
+            sed_label_list.append(sample['sed_label'])
+            doa_label_list.append(sample['doa_label'])
+        
+        batch_feature = np.stack(feature_list, axis=0)
+        batch_sed_label = np.stack(sed_label_list, axis=0)
+        batch_doa_label = np.stack(doa_label_list, axis=0)
+
+        self.batch = {
+            'filename': fn_list,
+            'n_segment': n_segment_list,
+            'feature': batch_feature,
+            'sed_label': batch_sed_label,
+            'doa_label': batch_doa_label
+        }
+
+    def pin_memory(self):
+        self.batch['feature'] = self.batch['feature'].pin_memory()
+        self.batch['sed_label'] = self.batch['sed_label'].pin_memory()
+        self.batch['doa_label'] = self.batch['doa_label'].pin_memory()
+        return self.batch
+    
+def collate_fn(batch_dict):
+    return PinMemCustomBatch(batch_dict)
+
+
+class PinMemCustomBatchTest():
+    def __init__(self, batch_dict):
+        fn_list = []
+        n_segment_list = []
+        feature_list = []
+
+        for sample in batch_dict:
+            fn_list.append(sample['filename'])
+            n_segment_list.append(sample['n_segment'])
+            feature_list.append(sample['feature'])
+        
+        batch_feature = np.stack(feature_list, axis=0)
+
+        self.batch = {
+            'filename': fn_list,
+            'n_segment': n_segment_list,
+            'feature': batch_feature,
+        }
+
+    def pin_memory(self):
+        self.batch['feature'] = self.batch['feature'].pin_memory()
+        return self.batch
+    
+def collate_fn_test(batch_dict):
+    return PinMemCustomBatchTest(batch_dict)
+
+
+
 
 
 

@@ -11,16 +11,16 @@ class afextractor():
     def __init__(self, cfg) -> None:
 
         features_cfg = cfg['features']
-        self.sr = features_cfg['sample rate']
+        self.sr = features_cfg['sample_rate']
         self.window = features_cfg['window']
         self.n_fft = features_cfg['n_fft']
         self.hop_len = features_cfg['hop_len']
         self.n_mels = features_cfg['n_mels']
         self.n_overlap = self.n_fft - self.hop_len
         self.feature_type = features_cfg['type']
-        self.SSTF_bin_filter = features_cfg['SS TF bin filter']
-        self.SALSA_win_size = features_cfg['SALSA window size']
-        self.SALSA_threshold = features_cfg['SALSA threshold']
+        self.SSTF_bin_filter = features_cfg['SS_TF_bin_filter']
+        self.SALSA_win_size = features_cfg['SALSA_window_size']
+        self.SALSA_threshold = features_cfg['SALSA_threshold']
 
     def extract_features(self, raw_wave):
         # Calculate channel's stft, raw_wave is numpy

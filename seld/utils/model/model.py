@@ -80,7 +80,7 @@ class EINV2(nn.Module):
         init_layer(self.sed_fc2)
         init_layer(self.doa_fc1)
         init_layer(self.doa_fc2)
-
+    
     def forward(self, x):
         x_sed = x[:,:4,:,:]
         x_doa = x

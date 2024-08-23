@@ -1,5 +1,5 @@
-data rootdir: './dataset_root' 
-audio format: 'foa' #'mic'
+data_rootdir: './dataset_root' 
+audio_format: 'foa' #'mic'
 
 dataset:
   name: 'TNSSE2020'
@@ -18,19 +18,19 @@ dataset:
     - 'male speech'
     - 'ringing phone'
     - 'piano'
-  clip length: 60 
-  label resolution: 0.1 
+  clip_length: 60 
+  label_resolution: 0.1 
 
 features:
-  sample rate: 24000
+  sample_rate: 24000
   window: 'hann'
   n_fft: 1024
   hop_len: 600 
   n_mels: 256
   type: 'LogMel_IVs' # 'LogMel_GCCPHAT', 'LogLin_GCCPHAT', 'LogMel_IVs', 'LogLin_IVs', 'SALSA_FOA', 'SALSA_MIC'
-  SALSA window size: 3
-  SALSA threshold: 5
-  SS TF bin filter: False
+  SALSA_window_size: 3
+  SALSA_threshold: 5
+  SS_TF_bin_filter: False
   train_chunklen_sec: 4
   train_hoplen_sec: 4
   test_chunklen_sec: 4
@@ -39,16 +39,16 @@ features:
 
 data augmentation:
   SpecAug:
-    time mask num: 1
-    time mask max len: 35
-    freq mask num: 1
-    freq mask max len: 30
+    time_mask_num: 1
+    time_mask_max_len: 35
+    freq_mask_num: 1
+    freq_mask_max_len: 30
   RC:
-    time mask step: 50
-    time mask max len: 50
-    freq mask max len: 50    
+    time_mask_step: 50
+    time_mask_max_len: 50
+    freq_mask_max_len: 50    
   FS:
-    freq band shift range: 10
+    freq_band_shift_range: 10
   ACS:
     p: 0.5
   p: 0.7

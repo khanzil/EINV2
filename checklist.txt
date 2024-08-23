@@ -29,7 +29,7 @@ Train:
     - Model
         EINV2           V
         EINV2_DyConv    X
-    - Checkpoint        X
+    - Checkpoint        V
     - Loss              X
     - Metrics           X
     - train.py          X
